@@ -6,7 +6,7 @@ const maxGridIndex = maxGridSize - 1;
 
 // Function to convert a number to its corresponding letter (A-J)
 const numberToLetterConverter = (number) => {
-  return String.fromCharCode(65 + number); // ASCII code of 'A' is 65
+  return String.fromCharCode(65 + number);
 };
 
 // Function to create an empty grid
@@ -73,9 +73,9 @@ function canPlaceShip(grid, row, col, length, orientation) {
 
 // Function to display the grid
 function displayGrid(grid) {
-  const horizontalLine = "" + "".repeat(grid.length * 3); // Horizontal line separator
-  const verticalLine = " |"; // Vertical line separator
-  const header = [" "]; // Start with two empty spaces for top-left corner
+  const horizontalLine = "" + "".repeat(grid.length * 3);
+  const verticalLine = " |";
+  const header = [" "];
 
   // Create header for the top row (numbers 1-10)
   for (let i = 0; i < grid.length; i++) {
