@@ -24,6 +24,8 @@ function createEmptyGrid(gridSize) {
 
 //! Function to randomly place ships on the grid
 function placeShips(grid, shipTypes) {
+  const occupiedPositions = new Set(); // Create a set to store occupied positions
+
   for (const ship of shipTypes) {
     let isShipPlaced = false;
     while (!isShipPlaced) {
@@ -31,13 +33,19 @@ function placeShips(grid, shipTypes) {
       const col = Math.floor(Math.random() * grid.length);
       const orientation = Math.random() < 0.5 ? "horizontal" : "vertical";
 
-      if (canPlaceShip(grid, row, col, ship.length, orientation)) {
+      const key = `${row}-${col}-${orientation}`; // Create a key to identify ship position and orientation
+
+      if (
+        !occupiedPositions.has(key) &&
+        canPlaceShip(grid, row, col, ship.length, orientation)
+      ) {
         if (orientation === "horizontal") {
           for (let i = 0; i < ship.length; i++) {
             grid[row][col + i].isShip = true;
             grid[row][col + i].shipName = ship.name;
             grid[row][col + i].xCoord = col + i; // Store actual x-coordinate
             grid[row][col + i].yCoord = row; // Store actual y-coordinate
+            occupiedPositions.add(`${row}-${col + i}-horizontal`); // Mark positions as occupied
           }
         } else {
           for (let i = 0; i < ship.length; i++) {
@@ -45,6 +53,7 @@ function placeShips(grid, shipTypes) {
             grid[row + i][col].shipName = ship.name;
             grid[row + i][col].xCoord = col; // Store actual x-coordinate
             grid[row + i][col].yCoord = row + i; // Store actual y-coordinate
+            occupiedPositions.add(`${row + i}-${col}-vertical`); // Mark positions as occupied
           }
         }
         isShipPlaced = true;
@@ -126,9 +135,6 @@ function displayGrid(grid) {
 
 //!Adj. Ships
 function adjustShipTypes(gridSize) {
-  // The maximum number of ships that can fit on the grid based on its size
-  const maxTotalLength = gridSize * gridSize;
-
   // Define your ship types with their initial lengths
   const initialShipTypes = [
     { name: "Carrier", length: 5 },
@@ -137,6 +143,8 @@ function adjustShipTypes(gridSize) {
     { name: "Submarine", length: 3 },
     { name: "Destroyer", length: 2 },
   ];
+
+  const maxTotalLength = gridSize * gridSize; // The maximum number of cells on the grid
 
   // Calculate the total length of all ships based on their initial lengths
   const totalInitialLength = initialShipTypes.reduce(
@@ -184,10 +192,17 @@ function playGame() {
     { name: "Destroyer", length: gridSize - 3 },
   ];
 
+  const adjustedShipTypes = adjustShipTypes(gridSize); // Adjust ship lengths
   const grid = createEmptyGrid(gridSize);
-  placeShips(grid, shipTypes);
+  placeShips(grid, adjustedShipTypes);
+
   let remainingShips = shipTypes.length;
   let totalHits = 0;
+
+  const totalShipsLength = adjustedShipTypes.reduce(
+    (sum, ship) => sum + ship.length,
+    0
+  );
 
   while (remainingShips > 0) {
     console.log("\n=== BATTLESHIP GAME ===\n");
@@ -229,9 +244,7 @@ function playGame() {
         if (cell.isShip) {
           console.log("\nIt's a hit! 💣 \n");
           totalHits++;
-          if (
-            totalHits === shipTypes.reduce((sum, ship) => sum + ship.length, 0)
-          ) {
+          if (totalHits === totalShipsLength) {
             console.log("\nCongratulations! You sunk all the ships! 🥇\n");
             break;
           }
