@@ -107,7 +107,7 @@ function displayGrid(grid) {
         if (cell.isShip) {
           row.push(` ${cell.shipName.charAt(0)}`); // Show the first letter of the ship name
         } else {
-          row.push(" *"); // Mark empty cell hit with 'O'
+          row.push(" *"); // Mark empty cell hit with '*'
         }
       } else if (cell.isShip) {
         row.push(" ~"); // Display the symbol for ships that haven't been hit
@@ -135,7 +135,6 @@ function displayGrid(grid) {
 
 //!Adj. Ships
 function adjustShipTypes(gridSize) {
-  // Define your ship types with their initial lengths
   const initialShipTypes = [
     { name: "Carrier", length: 5 },
     { name: "Battleship", length: 4 },
@@ -144,7 +143,7 @@ function adjustShipTypes(gridSize) {
     { name: "Destroyer", length: 2 },
   ];
 
-  const maxTotalLength = gridSize * gridSize; // The maximum number of cells on the grid
+  const maxTotalLength = gridSize * gridSize;
 
   // Calculate the total length of all ships based on their initial lengths
   const totalInitialLength = initialShipTypes.reduce(
@@ -152,12 +151,9 @@ function adjustShipTypes(gridSize) {
     0
   );
 
-  // If the total length of ships is greater than the maximum allowed, adjust ship lengths
   if (totalInitialLength > maxTotalLength) {
-    // Calculate the factor by which we need to scale down the ship lengths
     const scalingFactor = maxTotalLength / totalInitialLength;
 
-    // Adjust the lengths of each ship based on the scaling factor
     const adjustedShipTypes = initialShipTypes.map((ship) => ({
       ...ship,
       length: Math.floor(ship.length * scalingFactor),
@@ -166,8 +162,24 @@ function adjustShipTypes(gridSize) {
     return adjustedShipTypes;
   }
 
-  // If the total length is within the limit, return the initial ship types as is
   return initialShipTypes;
+}
+
+//! Function to ask the user if they want to play again
+function askPlayAgain() {
+  while (true) {
+    const response = readlineSync.question(
+      "\nDo you want to play again? (Y/N): "
+    );
+    const trimmedResponse = response.trim().toLowerCase();
+    if (trimmedResponse === "y") {
+      return true;
+    } else if (trimmedResponse === "n") {
+      return false;
+    } else {
+      console.log("Invalid input. Please enter 'Y' or 'N'.");
+    }
+  }
 }
 
 //! Function to play the game
@@ -264,6 +276,15 @@ function playGame() {
   //! Display the final grid after the game ends
   console.log("\n=== FINAL GRID ===\n");
   displayGrid(grid);
+
+  //! Ask the user if they want to play again
+  const playAgain = askPlayAgain();
+  if (playAgain) {
+    // Reset the game for a new round
+    playGame();
+  } else {
+    console.log("\nThanks for playing! Goodbye! ⛴️\n");
+  }
 }
 
 //! Start the game
